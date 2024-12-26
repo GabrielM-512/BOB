@@ -53,14 +53,12 @@ uwu_score = 0
 uwu_score_display = None
 uwu_init = True
 
-global_variables.score = 0
 max_score = 0
 game_start = False
 game_over = False
 
 ability_power = 200
 ability_max = 1080
-dash_timer = 1800
 
 # font and text setup
 
@@ -91,18 +89,16 @@ def close():
 
 
 def ability():
-    global ability_power, jump_height, background_state, gravity_strength, ballMovementMult, dash_timer, keys_held
+    global ability_power, background_state, keys_held
     if (keys_held[pygame.K_LSHIFT] or keys_held[pygame.K_RCTRL]) and ability_power > 0:
-        jump_height = 10
         ability_power -= 6
         background_state = BackgroundStates.ABILITY
-        ballMovementMult = 0.7
+        global_variables.ball_movement_mult = 0.7
 
     elif ability_power < ability_max:
         ability_power += 1
         background_state = BackgroundStates.BLACK
-        jump_height = 8
-        ballMovementMult = 1
+        global_variables.ball_movement_mult = 1
 
 
 def ball_collisions():
@@ -112,44 +108,55 @@ def ball_collisions():
         if game_object.type == "RED_ENEMY":
             if bob_object.hitbox.colliderect(game_object.hitbox):
                 game_over = True
-                bob_object.visual_state = bob_object.state["DEAD"]
+                bob_object.visual_state = bob.States.DEAD
 
                 pygame.mixer.music.load('assets/sounds/Bob_Death.mp3')
                 pygame.mixer.music.play()
 
-                pygame.mixer.music.unload()
+                #pygame.mixer.music.unload()
                 if global_variables.score > max_score:
                     max_score = global_variables.score
                     max_score_display = max_score_font.render(f'Max score this session: {max_score}', True, (100, 255, 100))
 
+                break
+
 
 def reset():
-    global game_over, ability_power, dash_timer
+    global game_over, ability_power
     if game_over:
         game_over = False
         ability_power = 200
-        bob_object.ability_points = 1800
+        bob_object.ability_points = bob_object.ABILITY_USAGE_REQUIREMENT
 
         for game_object in global_variables.objects:
             if game_object.type == "RED_ENEMY":
-                game_object.hitbox.y = -100
+                game_object.hitbox.y = -100 + random.randint(-20, 20)
                 game_object.hitbox.x = random.randint(40, 1240)
                 game_object.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5) * 4
 
-        bob_object.hitbox.center = (640, 670)
-        bob_object.visual_state = bob_object.state["STANDARD"]
+                for target in global_variables.objects:
+                    if target.type == "RED_ENEMY":
+                        while game_object.falling_speed == target.falling_speed and target != game_object:
+                            game_object.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5) * 4
 
-        global_variables.score = 0
+        bob_object.hitbox.center = (640, 670)
+        bob_object.y_vel = 0
+
+        bob_object.visual_state = bob.States.STANDARD
+
+        global_variables.score = 00
 
 
 def uwu_sound_effect():
     global uwu_counter, play_uwu, uwu_score_display, uwu_init, old_bob
-    if global_variables.score % 100 == 0 and global_variables.score > 0 and uwu_init:
+    if 0 <= (global_variables.score % 100) <= 5 and global_variables.score > 99 and uwu_init:
         uwu_score_display = standard_font.render(f'score: {global_variables.score}', True, (255, 0, 255))
         uwu_counter = 1
         uwu_init = False
-        old_bob = pygame.image.load('assets/graphics/BWOB-UwU.png').convert_alpha()
-    elif global_variables.score % 100 != 0:
+        bob_object.temp_visual_state = bob_object.visual_state
+        bob_object.visual_state = bob.States.UWU_FACE
+
+    elif global_variables.score % 100 >= 10:
         uwu_init = True
 
     if 80 >= uwu_counter > 0:
@@ -196,6 +203,7 @@ def draw_main_window():
     global fpsUpdater, fps, uwu_counter
 
     if not game_over and game_start:
+        print(bob_object.ability_points)
         for game_object in global_variables.objects:
             game_object.draw(screen)
 
@@ -205,7 +213,7 @@ def draw_main_window():
             # noinspection PyTypeChecker
             screen.blit(uwu_score_display, (560, 90))
 
-        if bob_object.ability_points >= 1800:
+        if bob_object.ability_points >= bob_object.ABILITY_USAGE_REQUIREMENT:
             screen.blit(old_bobDash_image, (20, 0))
         else:
             screen.blit(old_bobDashEmpty_image, (20, 0))
@@ -250,10 +258,10 @@ while True:
                         close()
                     case pygame.K_b:  # switch Bob's visual to the smileyface
                         if game_start and not game_over:
-                            bob_object.visual_state = bob_object.state["SMILEY_FACE"]
+                            bob_object.visual_state = bob.States.SMILEY_FACE
                     case pygame.K_n:  # switch Bob's visual to the normal
                         if game_start and not game_over:
-                            bob_object.visual_state = bob_object.state["STANDARD"]
+                            bob_object.visual_state = bob.States.STANDARD
                     case pygame.K_r:  # reset the game
                         reset()
                     case pygame.K_RETURN:  # start the game

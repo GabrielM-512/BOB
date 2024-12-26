@@ -1,18 +1,19 @@
 import pygame
 import math
-
+from enum import Enum
 from src.globals.time import deltaTime
 import src.globals.globalVariables as global_variables
 
 
+class States(Enum):
+    STANDARD = 1
+    SMILEY_FACE = 2
+    DEAD = 3
+    UWU_FACE = 4
+
+
 class Bob:
     # visual states for Bob
-    state = {
-        "STANDARD": 1,
-        "SMILEY_FACE": 2,
-        "DEAD": 3,
-        "UWU_FACE": 4
-    }
 
     MOVEMENT_SPEED = 4.2
 
@@ -20,23 +21,28 @@ class Bob:
     GRAVITY_STRENGTH = 0.3
 
     ABILITY_REGEN_SPEED = 0.18
+    ABILITY_USAGE_REQUIREMENT = 1200
 
     def __init__(self):
         self.surface = pygame.Surface((100, 100))
         self.surface.fill((0, 255, 0))
         self.hitbox = self.surface.get_rect()
         self.hitbox.center = (640, 669)
-        self.visual_state = self.state["STANDARD"]
-        self.temp_visual_state = self.state["STANDARD"]
+        self.visual_state = States.STANDARD
+        self.temp_visual_state = States.STANDARD
 
         # whether Bob can jump
         self.can_jump = False
-
         self.y_vel = 0
 
-        self.ability_points = 1800
+        self.ability_points = self.ABILITY_USAGE_REQUIREMENT
 
         self.type = "BOB"
+
+        self.col = (0, 255, 0)
+        self.bob_smile = pygame.image.load("assets/graphics/BOB.png").convert_alpha()
+        self.bob_dead = pygame.image.load("assets/graphics/BOBDeath.png").convert_alpha()
+        self.bob_uwu = pygame.image.load("assets/graphics/BWOB-UwU.png").convert_alpha()
 
         global_variables.objects.append(self)
 
@@ -69,7 +75,7 @@ class Bob:
         self.hitbox.y -= math.floor(self.y_vel)
 
         # dash ability
-        if self.ability_points >= 1800:
+        if self.ability_points >= self.ABILITY_USAGE_REQUIREMENT:
             if keys[pygame.K_q]:
                 self.hitbox.x -= 300
                 self.ability_points = 0
@@ -89,9 +95,17 @@ class Bob:
             self.hitbox.top = 0
 
     def update(self):
-        if self.ability_points < 1800:
+        if self.ability_points <= self.ABILITY_USAGE_REQUIREMENT:
             self.ability_points += 0.18 * deltaTime
         self.move()
 
     def draw(self, canvas):
-        canvas.blit(self.surface, self.hitbox)
+        match self.visual_state:
+            case States.STANDARD:
+                canvas.blit(self.surface, self.hitbox)
+            case States.SMILEY_FACE:
+                canvas.blit(self.bob_smile, self.hitbox)
+            case States.DEAD:
+                canvas.blit(self.bob_dead, self.hitbox)
+            case States.UWU_FACE:
+                canvas.blit(self.bob_uwu, self.hitbox)
