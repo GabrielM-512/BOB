@@ -170,6 +170,7 @@ def move():
 
 def ability():
     global ability_power, jump_height, background_state, gravity_strength, ballMovementMult, dash_timer, keys_held
+    # slowdown ability
     if (keys_held[pygame.K_LSHIFT] or keys_held[pygame.K_RCTRL]) and ability_power > 0:
         jump_height = 10
         ability_power -= 6
@@ -416,6 +417,7 @@ while True:
         # movement
 
         ability()
+        move()
         bob.update()
 
         if timer <= 550:

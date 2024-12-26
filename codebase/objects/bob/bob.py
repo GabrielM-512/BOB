@@ -21,6 +21,7 @@ def update():
 def move():
     global can_jump, y_vel
 
+    # get inputs
     keys = pygame.key.get_pressed()
     # horizontal movement
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -41,6 +42,7 @@ def move():
         can_jump = True
     bob_rect.y += y_vel/2
 
+    # fall quicker
     if keys[pygame.K_s] or keys[pygame.K_DOWN]:
         bobSETTINGS.GRAVITY_STRENGTH = 0.2
     elif bobSETTINGS.GRAVITY_STRENGTH != 0.1:
