@@ -1,5 +1,7 @@
 import sys
 from enum import Enum
+import math
+import random
 
 import pygame
 
@@ -38,7 +40,6 @@ background_image = pygame.image.load('assets/graphics/sprint_background.png').co
 old_bobDash_image = pygame.image.load('assets/graphics/BobDash.png').convert_alpha()
 old_bobDashEmpty_image = pygame.image.load('assets/graphics/BobDashEmpty.png').convert_alpha()
 
-
 background_state = BackgroundStates.BLACK
 
 # variables setup
@@ -52,7 +53,7 @@ uwu_score = 0
 uwu_score_display = None
 uwu_init = True
 
-score = 0
+global_variables.score = 0
 max_score = 0
 game_start = False
 game_over = False
@@ -94,19 +95,19 @@ def ability():
     if (keys_held[pygame.K_LSHIFT] or keys_held[pygame.K_RCTRL]) and ability_power > 0:
         jump_height = 10
         ability_power -= 6
-        background_state = "sprint"
+        background_state = BackgroundStates.ABILITY
         ballMovementMult = 0.7
 
     elif ability_power < ability_max:
         ability_power += 1
-        background_state = "black"
+        background_state = BackgroundStates.BLACK
         jump_height = 8
         ballMovementMult = 1
 
 
 def ball_collisions():
     # noinspection PyGlobalUndefined
-    global game_over, score, max_score, max_score_display
+    global game_over, max_score, max_score_display
     for game_object in global_variables.objects:
         if game_object.type == "RED_ENEMY":
             if bob_object.hitbox.colliderect(game_object.hitbox):
@@ -117,13 +118,13 @@ def ball_collisions():
                 pygame.mixer.music.play()
 
                 pygame.mixer.music.unload()
-                if score > max_score:
-                    max_score = score
+                if global_variables.score > max_score:
+                    max_score = global_variables.score
                     max_score_display = max_score_font.render(f'Max score this session: {max_score}', True, (100, 255, 100))
 
 
 def reset():
-    global game_over, score, ability_power, dash_timer
+    global game_over, ability_power, dash_timer
     if game_over:
         game_over = False
         ability_power = 200
@@ -131,22 +132,24 @@ def reset():
 
         for game_object in global_variables.objects:
             if game_object.type == "RED_ENEMY":
-                del i
+                game_object.hitbox.y = -100
+                game_object.hitbox.x = random.randint(40, 1240)
+                game_object.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5) * 4
 
         bob_object.hitbox.center = (640, 670)
         bob_object.visual_state = bob_object.state["STANDARD"]
 
-        score = 0
+        global_variables.score = 0
 
 
 def uwu_sound_effect():
-    global score, uwu_counter, play_uwu, uwu_score_display, uwu_init, old_bob
-    if score % 100 == 0 and score > 0 and uwu_init:
-        uwu_score_display = standard_font.render(f'score: {score}', True, (255, 0, 255))
+    global uwu_counter, play_uwu, uwu_score_display, uwu_init, old_bob
+    if global_variables.score % 100 == 0 and global_variables.score > 0 and uwu_init:
+        uwu_score_display = standard_font.render(f'score: {global_variables.score}', True, (255, 0, 255))
         uwu_counter = 1
         uwu_init = False
         old_bob = pygame.image.load('assets/graphics/BWOB-UwU.png').convert_alpha()
-    elif score % 100 != 0:
+    elif global_variables.score % 100 != 0:
         uwu_init = True
 
     if 80 >= uwu_counter > 0:
@@ -164,14 +167,11 @@ def uwu_sound_effect():
 
 
 def draw_background():
-    if background_state == BackgroundStates.BLACK:
-        print("black")
     global background_state, background_image
     if game_start:
         match background_state:
             case BackgroundStates.BLACK:
-                screen.fill(0, 0, 0)
-                print(background_state)
+                screen.fill((0, 0, 0))
             case BackgroundStates.ABILITY:
                 screen.blit(background_image, (0, 0))
 
@@ -237,7 +237,7 @@ def draw_main_window():
 
 while True:
 
-    score_display = standard_font.render(f'score: {score}', True, (255, 255, 255))
+    score_display = standard_font.render(f'score: {global_variables.score}', True, (255, 255, 255))
     fps_display = version_font.render(f'{fps}', True, (255, 255, 255))
 
     for event in pygame.event.get():

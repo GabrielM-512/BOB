@@ -14,10 +14,10 @@ class Bob:
         "UWU_FACE": 4
     }
 
-    MOVEMENT_SPEED = 0.54
+    MOVEMENT_SPEED = 4.2
 
-    JUMP_HEIGHT = 20
-    GRAVITY_STRENGTH = 0.1
+    JUMP_HEIGHT = 15
+    GRAVITY_STRENGTH = 0.3
 
     ABILITY_REGEN_SPEED = 0.18
 
@@ -46,9 +46,9 @@ class Bob:
 
         # horizontal movement
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.hitbox.x -= math.floor(self.MOVEMENT_SPEED * deltaTime)
+            self.hitbox.x -= self.MOVEMENT_SPEED * deltaTime
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.hitbox.x += math.floor(self.MOVEMENT_SPEED * deltaTime)
+            self.hitbox.x += self.MOVEMENT_SPEED * deltaTime
 
         # vertical movement
 
@@ -57,19 +57,19 @@ class Bob:
             self.can_jump = True
 
         # check if player wants to jump
-        if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
+        if (keys[pygame.K_SPACE] or keys[pygame.K_UP]) and self.can_jump:
             self.y_vel += self.JUMP_HEIGHT
             self.can_jump = False
 
         # decrease y_vel if not on floor
-        if self.hitbox.y != 720:
+        if self.hitbox.bottom != 720:
             self.y_vel -= self.GRAVITY_STRENGTH
 
         # move vertically
         self.hitbox.y -= math.floor(self.y_vel)
 
         # dash ability
-        if self.ability_points <= 1800:
+        if self.ability_points >= 1800:
             if keys[pygame.K_q]:
                 self.hitbox.x -= 300
                 self.ability_points = 0
