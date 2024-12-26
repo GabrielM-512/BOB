@@ -1,15 +1,17 @@
 import pygame
+import math
 
 from src.globals.time import deltaTime
+import src.globals.globalVariables as global_variables
 
 
 class Bob:
     # visual states for Bob
     state = {
         "STANDARD": 1,
-        "SMILEYFACE": 2,
+        "SMILEY_FACE": 2,
         "DEAD": 3,
-        "UWUFACE": 4
+        "UWU_FACE": 4
     }
 
     MOVEMENT_SPEED = 0.54
@@ -25,13 +27,18 @@ class Bob:
         self.hitbox = self.surface.get_rect()
         self.hitbox.center = (640, 669)
         self.visual_state = self.state["STANDARD"]
+        self.temp_visual_state = self.state["STANDARD"]
 
         # whether Bob can jump
         self.can_jump = False
 
         self.y_vel = 0
 
-        self.ability_points = 0
+        self.ability_points = 1800
+
+        self.type = "BOB"
+
+        global_variables.objects.append(self)
 
     def move(self):
         # get pressed keys
@@ -39,9 +46,9 @@ class Bob:
 
         # horizontal movement
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.hitbox -= self.MOVEMENT_SPEED * deltaTime
+            self.hitbox.x -= math.floor(self.MOVEMENT_SPEED * deltaTime)
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.hitbox += self.MOVEMENT_SPEED * deltaTime
+            self.hitbox.x += math.floor(self.MOVEMENT_SPEED * deltaTime)
 
         # vertical movement
 
@@ -59,7 +66,7 @@ class Bob:
             self.y_vel -= self.GRAVITY_STRENGTH
 
         # move vertically
-        self.hitbox.y -= self.y_vel
+        self.hitbox.y -= math.floor(self.y_vel)
 
         # dash ability
         if self.ability_points <= 1800:

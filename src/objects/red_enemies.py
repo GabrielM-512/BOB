@@ -4,6 +4,7 @@ import random
 import math
 
 from src.globals.time import deltaTime
+import src.globals.globalVariables as global_variables
 
 
 class RedEnemy:
@@ -13,6 +14,10 @@ class RedEnemy:
         self.hitbox.x = random.randint(40, 1240)
 
         self.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5)
+
+        global_variables.objects.append(self)
+
+        self.type = "RED_ENEMY"
 
     def move(self):
         self.hitbox.y += self.falling_speed * deltaTime
