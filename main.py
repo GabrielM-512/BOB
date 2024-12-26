@@ -3,8 +3,8 @@ import sys
 
 import pygame
 
-from codebase.objects.bob import bob
-import codebase.globals.time as time
+from src.objects.bob import bob
+import src.globals.time as time
 
 version = "v.1.2"
 
@@ -53,9 +53,9 @@ ball6_surf = pygame.Surface((80, 80))
 ball6_surf.fill((255, 0, 0))
 ball6 = ball6_surf.get_rect(center=(random.randint(80, 1200), -400))
 
-background_image = pygame.image.load('./graphics/sprint_background.png').convert_alpha()
-old_bobDash_image = pygame.image.load('./graphics/BobDash.png').convert_alpha()
-old_bobDashEmpty_image = pygame.image.load('./graphics/BobDashEmpty.png').convert_alpha()
+background_image = pygame.image.load('assets/graphics/sprint_background.png').convert_alpha()
+old_bobDash_image = pygame.image.load('assets/graphics/BobDash.png').convert_alpha()
+old_bobDashEmpty_image = pygame.image.load('assets/graphics/BobDashEmpty.png').convert_alpha()
 
 # variables setup
 old_bob_movement_speed = 0.54
@@ -201,9 +201,9 @@ def ball_collisions():
     if old_bob_rect.colliderect(ball) or old_bob_rect.colliderect(ball2) or old_bob_rect.colliderect(ball3) \
             or old_bob_rect.colliderect(ball4) or old_bob_rect.colliderect(ball5) or old_bob_rect.colliderect(ball6):
         game_over = True
-        old_bob = pygame.image.load('./graphics/BobDeath.png').convert_alpha()
+        old_bob = pygame.image.load('assets/graphics/BobDeath.png').convert_alpha()
 
-        pygame.mixer.music.load('./sounds/Bob_Death.mp3')
+        pygame.mixer.music.load('assets/sounds/Bob_Death.mp3')
         pygame.mixer.music.play()
 
         old_bob_state = "dead"
@@ -278,14 +278,14 @@ def uwu_sound_effect():
         uwu_score_display = font.render(f'score: {score}', True, (255, 0, 255))
         uwu_counter = 1
         uwu_init = False
-        old_bob = pygame.image.load('./graphics/BWOB-UwU.png').convert_alpha()
+        old_bob = pygame.image.load('assets/graphics/BWOB-UwU.png').convert_alpha()
     elif score % 100 != 0:
         uwu_init = True
 
     if 80 >= uwu_counter > 0:
         uwu_counter += 1
         if play_uwu:
-            pygame.mixer.music.load('./sounds/BOB-UwU.mp3')
+            pygame.mixer.music.load('assets/sounds/BOB-UwU.mp3')
             pygame.mixer.music.play()
             play_uwu = False
     elif uwu_counter > 80:
@@ -294,9 +294,9 @@ def uwu_sound_effect():
         if old_bob_state == "standard":
             old_bob.fill((0, 255, 0))
         elif old_bob_state == "smile":
-            old_bob = pygame.image.load('./graphics/BOB.png').convert_alpha()
+            old_bob = pygame.image.load('assets/graphics/BOB.png').convert_alpha()
         elif old_bob_state == "dead":
-            old_bob = pygame.image.load('./graphics/BobDeath.png').convert_alpha()
+            old_bob = pygame.image.load('assets/graphics/BobDeath.png').convert_alpha()
         pygame.mixer.music.unload()
 
 
@@ -390,7 +390,7 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 close()
             if event.key == pygame.K_b and game_start and not game_over:
-                old_bob = pygame.image.load('./graphics/BOB.png').convert_alpha()
+                old_bob = pygame.image.load('assets/graphics/BOB.png').convert_alpha()
                 old_bob_state = "smile"
             if event.key == pygame.K_n and game_start and not game_over:
                 old_bob.fill((0, 255, 0))

@@ -1,8 +1,8 @@
 import pygame
 
-import codebase.objects.bob.bobSETTINGS as bobSETTINGS
-from codebase.settings import SCREEN_WIDTH, SCREEN_HEIGHT
-import codebase.globals.time as time
+import src.objects.bob.bobSETTINGS as bobSETTINGS
+from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
+import src.globals.time as time
 
 bob = pygame.Surface((100, 100))
 bob.fill((0, 255, 0))

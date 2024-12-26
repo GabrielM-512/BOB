@@ -7,4 +7,4 @@ deltaTime = 1.1
 
 def time_tick():
     global deltaTime
-    deltaTime = clock.tick()
+    deltaTime = clock.tick(180)
