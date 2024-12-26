@@ -1,6 +1,6 @@
 import pygame
 
-clock = pygame.time.Clock
+clock = pygame.time.Clock()
 
 deltaTime = 1.1
 
