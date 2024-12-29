@@ -5,6 +5,8 @@ ball_movement_mult = 1
 score = 0
 fps = 180
 
+uwu_counter = 0
+
 
 class GameStates(Enum):
     MAIN_MENU = 1
