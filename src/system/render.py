@@ -18,14 +18,15 @@ background_state = BackgroundStates.BLACK
 version = "v.1.3.1"
 
 showFPS = False
-fpsUpdater = 0
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 
-# font and text setup
+# image setup
 background_image = pygame.image.load('assets/graphics/sprint_background.png').convert_alpha()
 dash_available_image = pygame.image.load('assets/graphics/BobDash.png').convert_alpha()
 dash_unavailable_image = pygame.image.load('assets/graphics/BobDashEmpty.png').convert_alpha()
+
+# font and text setup
 
 standard_font = pygame.font.SysFont('Arial', 50)
 game_over_font = pygame.font.SysFont('Arial', 100)
@@ -62,7 +63,7 @@ def draw_background(screen):
     fps_display = version_font.render(f'{global_variables.fps}', True, (255, 255, 255))
 
     match global_variables.gamestate:
-        case global_variables.GameStates.PLAYING:
+        case global_variables.GameStates.PLAYING:  # only displays the very background
             match background_state:
                 case BackgroundStates.BLACK:
                     screen.fill((0, 0, 0))
@@ -72,13 +73,13 @@ def draw_background(screen):
 
         case global_variables.GameStates.MAIN_MENU:
             match background_state:
-                case BackgroundStates.BLACK:
+                case BackgroundStates.BLACK:  # displays the start screen
                     screen.fill((0, 0, 0))
                     screen.blit(start_text_display, (SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT / 2 - 50))
                     screen.blit(control_guide_start, (SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT / 2 + 50))
                     screen.blit(credit_display, (SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT / 2 + 100))
 
-                case BackgroundStates.CONTROL_GUIDE:
+                case BackgroundStates.CONTROL_GUIDE:  # displays the control info
                     screen.fill((0, 0, 0))
                     screen.blit(move_text_guide_display, (50, 40))
                     screen.blit(jump_text_guide_display, (50, 80))
@@ -88,7 +89,7 @@ def draw_background(screen):
 
                     screen.blit(start_text_display, (SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT - 100))
 
-                case BackgroundStates.CREDITS:
+                case BackgroundStates.CREDITS:  # displays the credits
                     screen.fill((0, 0, 0))
                     screen.blit(groot_credit_display, (SCREEN_WIDTH / 2 - 150, 50))
                     screen.blit(jacek_credit_display, (SCREEN_WIDTH / 2 - 220, 100))
@@ -107,35 +108,31 @@ def draw_background(screen):
 
 
 def draw_main_window(screen):
-    global fpsUpdater
 
     if global_variables.gamestate == global_variables.GameStates.PLAYING:
-        for game_object in global_variables.objects:
+        for game_object in global_variables.objects:  # draw all game objects
             game_object.draw(screen)
 
-        if global_variables.uwu_counter == 0:
+        if global_variables.uwu_counter == 0:  # determine whether to display normal or pink score counter. Put here so Bob and balls can disappear behind it.
             screen.blit(score_display, ((SCREEN_WIDTH / 2) - 80, SCREEN_HEIGHT / 8))
         elif global_variables.uwu_counter <= 80:
             # noinspection PyTypeChecker
             screen.blit(uwu_score_display, (560, 90))
 
-        if global_variables.objects[0].ability_points >= global_variables.objects[0].ABILITY_USAGE_REQUIREMENT:
+        if global_variables.objects[0].ability_points >= global_variables.objects[0].ABILITY_USAGE_REQUIREMENT:  # display the icon showing if dash is available
             screen.blit(dash_available_image, (20, 0))
         else:
             screen.blit(dash_unavailable_image, (20, 0))
 
     if showFPS:
-        if fpsUpdater >= 20:
-            global_variables.fps = 1000 / time.deltaTime
+        # recalculate the FPS
+        global_variables.fps = 1000 / time.deltaTime
 
-            if global_variables.fps > 180:
-                global_variables.fps = 180
-            global_variables.fps = round(global_variables.fps)
+        if global_variables.fps > 180:
+            global_variables.fps = 180
+        global_variables.fps = round(global_variables.fps)
 
-            fpsUpdater = 0
-        else:
-            fpsUpdater += 1
-
+        # display the FPS
         screen.blit(fps_display, (20, SCREEN_HEIGHT - 40))
 
     screen.blit(version_text_display, (SCREEN_WIDTH - 50, SCREEN_HEIGHT - 20))

@@ -9,8 +9,6 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Bob')
 
 import sys
-import math
-import random
 
 import src.objects.bob as bob
 import src.objects.red_enemies as reds
@@ -31,12 +29,7 @@ bob_object = bob.Bob()
 
 # create 5 red enemies
 for i in range(5):
-    reds.RedEnemy()
-
-# set images
-background_image = pygame.image.load('assets/graphics/sprint_background.png').convert_alpha()
-dash_available_image = pygame.image.load('assets/graphics/BobDash.png').convert_alpha()
-dash_unavailable_image = pygame.image.load('assets/graphics/BobDashEmpty.png').convert_alpha()
+    reds.RedEnemy(i)
 
 # variables setup
 showFPS = False
@@ -54,30 +47,37 @@ ability_power = 200
 ability_max = 1080
 
 
-def close():
+def close(do_reset):  # closes the game including anything that should happen before quitting. If reset is true, all values are reset to their initial state.
     # update the max score in the .json file
-    if score.get_max_score() < max_score:
-        score.set_max_score(max_score)
+    if not do_reset:
+        if score.get_max_score() < max_score:
+            score.set_max_score(max_score)
+
+    else:
+        score.set_max_score(0)
 
     # quit the game
     pygame.quit()
     sys.exit()
 
 
-def ability():
+def ability():  # manages the slowdown ability accessed by holding shift or rControl. Ability slows down red enemies and increases Bob's Jump height (tbd)
     global ability_power, keys_held
     if (keys_held[pygame.K_LSHIFT] or keys_held[pygame.K_RCTRL]) and ability_power > 0:
-        ability_power -= 6
+        ability_power -= 1.08 * time.deltaTime
         render.background_state = render.BackgroundStates.ABILITY
-        global_variables.ball_movement_mult = 0.7
+        global_variables.ball_movement_mult = 0.6
+        bob_object.JUMP_MODIFIER = 1.2
 
     elif ability_power < ability_max:
-        ability_power += 1
+        ability_power += 0.18 * time.deltaTime
         render.background_state = render.BackgroundStates.BLACK
         global_variables.ball_movement_mult = 1
+        bob_object.JUMP_MODIFIER = 1
 
 
-def ball_collisions():
+def ball_collisions():  # checks if any ball collides with bob on the current frame using pygame's rect.colliderect().
+    # If so, kill Bob.
     # noinspection PyGlobalUndefined
     global game_over, max_score, max_score_display
     for game_object in global_variables.objects:
@@ -98,7 +98,7 @@ def ball_collisions():
                 break
 
 
-def reset():
+def reset():  # resets the game to its initial state after death
     global ability_power
     if global_variables.gamestate == global_variables.GameStates.DEAD:
         global_variables.gamestate = global_variables.GameStates.PLAYING
@@ -107,14 +107,7 @@ def reset():
 
         for game_object in global_variables.objects:
             if game_object.type == "RED_ENEMY":
-                game_object.hitbox.y = -100 + random.randint(-20, 20)
-                game_object.hitbox.x = random.randint(40, 1240)
-                game_object.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5) * 4
-
-                for target in global_variables.objects:
-                    if target.type == "RED_ENEMY":
-                        while game_object.falling_speed == target.falling_speed and target != game_object:
-                            game_object.falling_speed = math.pow(random.uniform(0.54, 0.9), 2.5) * 4
+                game_object.reset()
 
         bob_object.hitbox.center = (640, 670)
         bob_object.y_vel = 0
@@ -157,19 +150,21 @@ while True:
     # event checks
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            close()
+            close(False)
         elif event.type == pygame.KEYDOWN:
             if __name__ == '__main__':
                 match event.key:
                     case pygame.K_ESCAPE:  # close the game
-                        close()
+                        close(False)
+                    case pygame.K_BACKSPACE:  # completely reset all permanent saved objects and quit the game
+                        close(True)
                     case pygame.K_b:  # switch Bob's visual to the smiley face
                         if global_variables.gamestate == global_variables.GameStates.PLAYING:
                             bob_object.visual_state = bob.States.SMILEY_FACE
-                    case pygame.K_n:  # switch Bob's visual to the normal
+                    case pygame.K_n:  # switch Bob's visual to the normal face
                         if global_variables.gamestate == global_variables.GameStates.PLAYING:
                             bob_object.visual_state = bob.States.STANDARD
-                    case pygame.K_RETURN:  # start the game
+                    case pygame.K_RETURN:  # start/reset the game
                         if global_variables.gamestate == global_variables.GameStates.DEAD:
                             reset()
                         else:
@@ -185,10 +180,10 @@ while True:
 
     keys_held = pygame.key.get_pressed()
 
+    time.time_tick()
+
     match global_variables.gamestate:
         case global_variables.GameStates.PLAYING:
-
-            time.time_tick()
 
             # movement
             ability()

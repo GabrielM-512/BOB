@@ -2,9 +2,9 @@ import pygame
 
 clock = pygame.time.Clock()
 
-deltaTime = 1.1
+deltaTime = 0
 
 
-def time_tick():
+def time_tick():  # advances the game by one tick
     global deltaTime
-    deltaTime = clock.tick(180)
+    deltaTime = clock.tick(180)  # the argument provided here sets the FPS

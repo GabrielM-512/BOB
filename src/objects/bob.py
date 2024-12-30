@@ -1,11 +1,11 @@
 import pygame
 import math
 from enum import Enum
-from src.globals.time import deltaTime
+import src.globals.time as time
 import src.globals.globalVariables as global_variables
 
 
-class States(Enum):
+class States(Enum):  # visual states for bob
     STANDARD = 1
     SMILEY_FACE = 2
     DEAD = 3
@@ -13,17 +13,20 @@ class States(Enum):
 
 
 class Bob:
-    # visual states for Bob
 
-    MOVEMENT_SPEED = 4.2
+    MOVEMENT_SPEED = 0.8
 
-    JUMP_HEIGHT = 15
-    GRAVITY_STRENGTH = 0.3
+    JUMP_HEIGHT = 4
+    GRAVITY_STRENGTH = 0.02
+    JUMP_MODIFIER = 1
 
+    # variables for dash ability
     ABILITY_REGEN_SPEED = 0.18
     ABILITY_USAGE_REQUIREMENT = 1200
 
     def __init__(self):
+        self.type = "BOB"
+
         self.surface = pygame.Surface((100, 100))
         self.surface.fill((0, 255, 0))
         self.hitbox = self.surface.get_rect()
@@ -36,8 +39,6 @@ class Bob:
         self.y_vel = 0
 
         self.ability_points = self.ABILITY_USAGE_REQUIREMENT
-
-        self.type = "BOB"
 
         self.col = (0, 255, 0)
         self.bob_smile = pygame.image.load("assets/graphics/BOB.png").convert_alpha()
@@ -52,27 +53,28 @@ class Bob:
 
         # horizontal movement
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.hitbox.x -= self.MOVEMENT_SPEED * deltaTime
+            self.hitbox.x -= self.MOVEMENT_SPEED * time.deltaTime
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.hitbox.x += self.MOVEMENT_SPEED * deltaTime
+            self.hitbox.x += self.MOVEMENT_SPEED * time.deltaTime
 
         # vertical movement
 
         # check if Bob can jump again
         if self.hitbox.bottom == 720:
             self.can_jump = True
+            self.y_vel = 0
 
         # check if player wants to jump
         if (keys[pygame.K_SPACE] or keys[pygame.K_UP]) and self.can_jump:
-            self.y_vel += self.JUMP_HEIGHT
+            self.y_vel += self.JUMP_HEIGHT * self.JUMP_MODIFIER
             self.can_jump = False
 
         # decrease y_vel if not on floor
         if self.hitbox.bottom != 720:
-            self.y_vel -= self.GRAVITY_STRENGTH
+            self.y_vel -= self.GRAVITY_STRENGTH * time.deltaTime
 
         # move vertically
-        self.hitbox.y -= math.floor(self.y_vel)
+        self.hitbox.y -= math.floor(self.y_vel * time.deltaTime)
 
         # dash ability
         if self.ability_points >= self.ABILITY_USAGE_REQUIREMENT:
@@ -96,7 +98,7 @@ class Bob:
 
     def update(self):
         if self.ability_points <= self.ABILITY_USAGE_REQUIREMENT:
-            self.ability_points += 0.18 * deltaTime
+            self.ability_points += 0.18 * time.deltaTime
         self.move()
 
     def draw(self, canvas):
